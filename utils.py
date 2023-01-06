@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import constants
-
+'''Hello'''
 def parse_html(url: str) -> BeautifulSoup:
     """Envoi de la requête pour récupérer la parser"""
     response = requests.get(url)
