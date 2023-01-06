@@ -13,7 +13,7 @@ def parse_html(url: str) -> BeautifulSoup:
     return BeautifulSoup(response.content, 'html.parser')
 
 def get_number_of_pages(category_url: str) -> int:
-    """Retourne le nombre de pages présentes dans la catégorie"""
+    """Retourne le nombre de pages présentes dans la catégorie """
     content = parse_html(category_url)
     number_of_books_in_category = content.select("strong")[1].text
     if not number_of_books_in_category.isdigit():

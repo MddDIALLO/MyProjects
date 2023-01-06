@@ -1,6 +1,6 @@
 URL = "https://books.toscrape.com/"
 MENU = """
---------------------------------------
+---------------------------------------
 Bienvenu dans l'outil de scraping
 
 Choisissez une option:
