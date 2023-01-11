@@ -18,12 +18,12 @@ def get_books_data(category_url):
     return [get_book_data(book_url) for book_url in get_books_urls(category_url)]
 
 def parse_html(url):
-    """Envoi de la requête pour récupérer la parser"""
+    """Envoi de la requête pour récupérer le BeautifulSoup des pages"""
     response = requests.get(url)
     return BeautifulSoup(response.content, "html.parser")
 
 def get_number_of_pages(category_url):
-    """Retourne le nombre de pages présentes dans la catégorie"""
+    """Retourner le nombre de pages présentes dans la catégorie"""
     content = parse_html(category_url)
     number_of_books_in_category = content.select("strong")[1].text
     if not number_of_books_in_category.isdigit():
@@ -31,7 +31,7 @@ def get_number_of_pages(category_url):
     return math.ceil(int(number_of_books_in_category) / 20)
 
 def get_pages_urls(category_url):
-    """Recuperation des urls de chaque catégorie"""
+    """Recuperer des urls de chaque catégorie"""
     pages_urls = []
     number_of_pages = get_number_of_pages(category_url)
     if number_of_pages == 1:
@@ -43,7 +43,7 @@ def get_pages_urls(category_url):
     #[category_url.replace("index.",f"page-{page_number + 1}") for page_number in range(number_of_pages)]
 
 def get_books_urls(pages_urls):
-    """Recuperer les URLs des livres"""
+    """Recuperer les URL des livres"""
     books_url = []
     for page_url in pages_urls:
         content = parse_html(page_url)
