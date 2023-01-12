@@ -11,6 +11,7 @@ def main_menu():
     while choix in choix_disponible:
         if choix == "1":
             scrap_all_books()
+            exit()
         elif choix == "2":
             print("Au revoir")
             exit()

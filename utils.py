@@ -1,6 +1,7 @@
 import math
 import re
 from pathlib import Path
+from pprint import pprint
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,6 +16,7 @@ def get_all_categories_url():
     return [f"{constants.URL}/{category_tag.find('a')['href']}" for category_tag in all_categories_tags]
 
 def get_books_data(category_url):
+    print(type(get_books_urls(category_url)))
     return [get_book_data(book_url) for book_url in get_books_urls(category_url)]
 
 def parse_html(url):
@@ -23,7 +25,7 @@ def parse_html(url):
     return BeautifulSoup(response.content, "html.parser")
 
 def get_number_of_pages(category_url):
-    """Retourner le nombre de pages présentes dans la catégorie"""
+    """Retourne le nombre de pages présentes dans la catégorie"""
     content = parse_html(category_url)
     number_of_books_in_category = content.select("strong")[1].text
     if not number_of_books_in_category.isdigit():
@@ -31,7 +33,7 @@ def get_number_of_pages(category_url):
     return math.ceil(int(number_of_books_in_category) / 20)
 
 def get_pages_urls(category_url):
-    """Recuperer des urls de chaque catégorie"""
+    """Recuperer les urls de chaque catégorie"""
     pages_urls = []
     number_of_pages = get_number_of_pages(category_url)
     if number_of_pages == 1:
@@ -42,10 +44,24 @@ def get_pages_urls(category_url):
     return pages_urls
     #[category_url.replace("index.",f"page-{page_number + 1}") for page_number in range(number_of_pages)]
 
+# Pour moi c'est là que ça se casse la gueule
 def get_books_urls(pages_urls):
-    """Recuperer les URL des livres"""
+    """Recupere les URL des livres"""
     books_url = []
+    content = parse_html(pages_urls)
+    titles = content.find_all("h3")
+    for title in titles:
+        href = title.find("a")["href"]
+        if "../../../" in href:
+            url = href.replace("../../../", f"{constants.URL}catalogue/")
+        else:
+            url = constants.URL + href
+        books_url.append(url)
+    return books_url
+    '''
+    
     for page_url in pages_urls:
+        print(page_url)
         content = parse_html(page_url)
         titles = content.find_all("h3")
         for title in titles:
@@ -56,6 +72,7 @@ def get_books_urls(pages_urls):
                 url = constants.URL + href
             books_url.append(url)
     return books_url
+    '''
 
 def get_book_data(url):
     """Recupere les informations des livres de chaque page"""
@@ -78,14 +95,13 @@ def get_book_data(url):
         header = re.sub("[^a-zA-Z]+", "_", header)
         value = row.find("td").get_text(strip=True).replace("Â", "")
         data[header] = value
-
     return data
 
 def convert_book_data_to_csv(books_data):
-    lines = ["Titre,Categorie,Prix,Rating,Image URL,Description"]
+    lines = ["Titre;Categorie;Prix;Rating;Image URL;Description"]
 
     for book_data in books_data:
-        lines.append(",".join([book_data["title"],
+        lines.append(";".join([book_data["title"],
                               book_data["category"],
                               book_data["price"],
                               book_data["review_rating"],
@@ -100,7 +116,7 @@ def save_to_csv_file(book_data):
     folder_path.mkdir(parents=True, exist_ok=True)
 
     file_path = folder_path / f"{category_name}.csv"
-    with open(file_path, "w") as f:
+    with open(file_path, "a", encoding="utf8") as f:
         f.write(convert_book_data_to_csv(book_data))
 
     return True
